@@ -1,8 +1,9 @@
+/*
+    songCache keeps track of songs split in 2 parts (beg and end)
+*/
 var songCache = new Map();
 
-function reqListener() {
-    console.log(this.responseText);
-}
+// call getSongList in main to start all the work, this is the only function you need to call
 function getSongList(time) {
     var xhr = new XMLHttpRequest();
     songCache = new Map();
@@ -18,13 +19,12 @@ function getSongList(time) {
         xhr.send();
 }
 
-
-
-
+// to start recursive call
 function makeSetlist(songList, time) {
     buildSetList([], songList, time);
 }
 
+// recursely build the set list
 function buildSetList(setList, songList, time) {
 
     if(time < 0) {
@@ -38,6 +38,7 @@ function buildSetList(setList, songList, time) {
     }
 }
 
+// adds time of multiple songs in one group of songs
 function getTotalTime(songs) {
     var total = 0;
     for(var i = 0; i < songs.length; i++) {
@@ -45,23 +46,8 @@ function getTotalTime(songs) {
     }
     return total;
 }
-    /*
-    if(song.part != "beginning") {
-        var adjustedList = removeSongFromList(songList);
-        songList.push(song);
-        buildSetList(setList, adjustedList, maxTime - song.length1);
-    } else {
-        var songTime = 0;
-        if(song.part === "end") {
-            songTime += song.length2;
-        } else {
-            songTime += song.length1 + song.length2;
-        }
-        songList.push(song);
-        buildSetList(setList, songList, maxTime - songTime)
-    }}*/
 
-
+// returns an array of 1-4 songs
 function pickRandomSongs(songList) {
     var rand = Math.floor(Math.random() * (songList.length));
     var song = [];
@@ -96,18 +82,19 @@ function pickRandomSongs(songList) {
     } while (againNum > 8 && song.length < 4);
     return song;
 }
+// picks a song based on key of last song in same group, tries to resolve down a 5th first
 function getSong(songList, lastSong) {
     var newSong = null;
     var lastKey = convertToMajor(lastSong.songKey, lastSong.songQuality);
     var count = 0;
     // pick random song
     while(newSong === null) {
-        var rando = Math.floor(Math.random() * 7);
+        var rando = Math.floor(Math.random() * 8);
         var nextKey;
-        if(rando <= 3) {
+        if(rando <= 4) {
             nextKey = getFourth(lastKey);
         }
-        else if (rando <= 5) {
+        else if (rando <= 6) {
             nextKey = getFifth(lastKey);
         } else {
             nextKey = getTritone(lastKey);
@@ -135,11 +122,9 @@ function removeSong(song, songList) {
     if(index > -1) {
         songList.splice(index, 1);
     }
-    console.log(songList);
 }
 
 function displaySetList(setList) {
-    console.log(songCache);
     removeOldList();
 
     for(var i = 0; i < setList.length; i++) {
@@ -180,6 +165,7 @@ function displaySetList(setList) {
     }
 }
 
+// if old list exists in DOM this will remove it entirely
 function removeOldList() {
     var myNode = document.getElementById("songlist");
 
@@ -190,12 +176,11 @@ function removeOldList() {
 
 }
 
-
-
+// returns list of all songs in given key
 function getSongsInKey(songList, key) {
     var newList = [];
     for(var i = 0; i < songList.length; i++) {
-        if(songList[i].songKey === key) {
+        if(convertToMajor(songList[i].songKey, songList[i].songQuality) === key) {
             newList.push(songList[i]);
         }
     }
