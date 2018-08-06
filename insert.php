@@ -7,7 +7,7 @@
     <body>
         <?php
 
-        include('dbConfig.php');
+        include('config/dbConfig.php');
         $tableName = "songs";
 
         // parse post data & submit to database

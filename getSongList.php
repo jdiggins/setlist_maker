@@ -1,7 +1,7 @@
 
         <?php
     // return all songs from database
-    include('dbConfig.php');
+    include('config/dbConfig.php');
 
     $tableName = "songs";
 

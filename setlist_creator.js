@@ -13,6 +13,7 @@ function getSongList(time) {
             if (xhr.status === 200) {
                 var userInfo = JSON.parse(xhr.responseText);
                 console.log(userInfo);
+
                 makeSetlist(userInfo, time);
             }
         }
@@ -31,7 +32,7 @@ function buildSetList(setList, songList, time) {
         displaySetList(setList);
     } else {
         var song = pickRandomSongs(songList);
-        removeSong(song, songList);
+        //removeSong(song, songList);
         setList.push(song);
         
         buildSetList(setList, songList, time - getTotalTime(song));;
@@ -67,7 +68,7 @@ function pickRandomSongs(songList) {
                 removeSong(tempSong, songList);
             }
         } else {
-            if(Math.random() * 100 > 80 && tempSong.splittable !== "0") {
+            if(Math.random() * 100 > 80 && tempSong.splittable !== "0" && song.length < 3) {
                 // cache song as beginning 
                 songCache.set(tempSong.title, "beg");
                 againNum = 10;
@@ -78,8 +79,8 @@ function pickRandomSongs(songList) {
         }
         
         song.push(tempSong);
-
     } while (againNum > 8 && song.length < 4);
+
     return song;
 }
 // picks a song based on key of last song in same group, tries to resolve down a 5th first
