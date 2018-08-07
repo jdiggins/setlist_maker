@@ -1,5 +1,4 @@
-
-        <?php
+<?php
     // return all songs from database
     include('config/dbConfig.php');
 
