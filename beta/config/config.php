@@ -6,11 +6,11 @@ server with default setting (user 'root' with no password) */
 
 define('DB_SERVER', 'localhost');
 
-define('DB_USERNAME', 'whistle3_john');
+define('DB_USERNAME', '');
 
-define('DB_PASSWORD', 'Jamaz0n!');
+define('DB_PASSWORD', '');
 
-define('DB_NAME', 'whistle3_setlist');
+define('DB_NAME', '');
 
     
 
