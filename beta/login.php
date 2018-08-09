@@ -5,9 +5,14 @@ require_once 'config/config.php';
 // Turn on error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
+if(isset($_SESSION['username_setlistername']) || !empty($_SESSION['username_setlist'])){
+    header("location: welcome.php"); exit;
+  }
+
 // Define variables and initialize with empty values
 $username = $password = "";
 $username_err = $password_err = "";
+
 // Processing form data when form is submitted
 if($_SERVER["REQUEST_METHOD"] == "POST"){
     // Check if username is empty
@@ -44,7 +49,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                             /* Password is correct, so start a new session and
                             save the username to the session */
                             
-                            $_SESSION['username'] = $username;      
+                            $_SESSION['username_setlist'] = $username;
+                            $_SESSION['loggedinsetlist'] = true;      
                             exit(header('location:welcome.php'));
                         } else{
                             // Display an error message if password is not valid
@@ -63,7 +69,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         mysqli_stmt_close($stmt);
     }
     // Close connection
-    mysqli_close($link);
+    mysqli_close($link);// Close connection
 }
 ?>
 <!DOCTYPE html>
@@ -82,7 +88,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
         body{ font: 14px sans-serif; }
 
-        .wrapper{ width: 350px; padding: 20px; }
+        .wrapper{ margin: auto; width: 350px; padding: 20px; text-align: center; }
 
     </style>
 

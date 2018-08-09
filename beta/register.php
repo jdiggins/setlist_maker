@@ -204,7 +204,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
         body{ font: 14px sans-serif; }
 
-        .wrapper{ width: 350px; padding: 20px; }
+        .wrapper{ margin: auto; width: 350px; padding: 20px; text-align: center; }
 
     </style>
 

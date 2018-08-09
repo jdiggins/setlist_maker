@@ -12,11 +12,11 @@ ini_set('display_errors', TRUE);
 
 if(!isset($_SESSION['username_setlist']) || empty($_SESSION['username_setlist'])){
 
-  header("location: login.php");
-
-  exit;
-
-}
+    header("location: login.php");
+  
+    exit;
+  
+  }
 
 ?>
 <!DOCTYPE html>
@@ -27,7 +27,7 @@ if(!isset($_SESSION['username_setlist']) || empty($_SESSION['username_setlist'])
 
     <meta charset="UTF-8">
 
-    <title>Welcome!</title>
+    <title>Setlist Maker::Settings</title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
 
@@ -36,23 +36,19 @@ if(!isset($_SESSION['username_setlist']) || empty($_SESSION['username_setlist'])
         body{ font: 14px sans-serif; text-align: center; }
 
     </style>
-     <script type="text/javascript" src="setlist_creator.js"></script>
-
+     
 </head>
+
 <body>
 
     <div class="page-header">
 
-        <h1>Hi, <b><?php echo htmlspecialchars($_SESSION['username_setlist']); ?></b>. Welcome to your setlist maker.</h1>
+        <h1>Hi, <b><?php echo htmlspecialchars($_SESSION['username_setlist']); ?></b>. Here you can change your user settings.</h1>
         
 
     </div>
-
-    
-    <p><button type="button" onclick="getSongList(30) " class="btn btn-danger">Do That Setlist</button> </p><br>
-    <p><a href="insert.php" class="btn btn-danger">Insert Songs</a></p><br>
-    <p><a href="settings.php" class="btn btn-danger">User Settings</a></p><br>
-    <p><a href="logout.php" class="btn btn-danger">Sign Out of Your Account</a></p><br>
+    <h2>Settings coming soon!</h2>
+    <p><a href="welcome.php" class="btn btn-danger">Back</a></p><br>
 </body>
 
 </html>

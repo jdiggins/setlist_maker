@@ -5,19 +5,55 @@ var songCache = new Map();
 
 // call getSongList in main to start all the work, this is the only function you need to call
 function getSongList(time) {
+    checkUserLogin();
     var xhr = new XMLHttpRequest();
     songCache = new Map();
         xhr.open('GET', 'getSongList.php');
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.onload = function() {
             if (xhr.status === 200) {
-                var userInfo = JSON.parse(xhr.responseText);
-                console.log(userInfo);
+                var userInfo = parseJSON(xhr.responseText);
 
-                makeSetlist(userInfo, time);
+                if(userInfo){
+                    makeSetlist(userInfo, time);
+                }
             }
         }
         xhr.send();
+    
+}
+
+/* Check user login status */
+/* Will redirect to login screen if not logged in */
+function checkUserLogin() {
+    var logrsp = new XMLHttpRequest();
+    logrsp.open('GET', 'is_user_logged.php');
+    logrsp.setRequestHeader('Content-Type', 'application/json');
+    logrsp.onload = function() {
+        if(logrsp.status === 200) {
+            var userLogJson = JSON.parse(logrsp.responseText);
+            if(userLogJson == false) {
+                window.location.replace("login.php");
+            }
+        } 
+    }
+    logrsp.send();
+}
+
+function parseJSON(json) {
+    var userInfo;
+    try {
+        userInfo = JSON.parse(json);
+    } catch (e) {
+        removeOldList();
+
+        var newDiv = document.createElement("div");
+        newDiv.id="songlist"
+        newDiv.appendChild(document.createTextNode("You haven't entered any songs! Please insert some songs for me to work with."));
+       
+        document.body.appendChild(newDiv);
+    }
+    return userInfo;
 }
 
 // to start recursive call
@@ -43,12 +79,122 @@ function buildSetList(setList, songList, time) {
 function getTotalTime(songs) {
     var total = 0;
     for(var i = 0; i < songs.length; i++) {
-        total += (parseInt(songs[i].length1) + parseInt(songs[i].length2));
+        total += (parseInt(songs[i].length1));
     }
     return total;
 }
 
+
+
+function pickRandomSongs(songList) {
+    var newList = [];
+    var maxListLength = songList.length > 4 ? 4 : songList.length;
+    var listLength = Math.floor(Math.random() * maxListLength);
+
+    /* If only one song, just add a song */
+    if(listLength === 0) {
+        var count = 0;
+        do {
+            var tempSong = songList[Math.floor(Math.random() * songList.length)];
+            var songState = songCache.get(tempSong.title) ? songCache.get(tempSong.title) : 0;
+            if(songState === 0 || count > 15) {
+                newList.push(tempSong);
+                removeSong(tempSong, songList);
+                break;
+            }
+            count++;
+
+        } while (1);
+
+
+    } else {
+        /* More than one song, allow for song splitting & inversions */
+        for (var i = 0; i <= listLength; i++) {
+            var randNum = Math.floor(Math.random() * 11);
+            var tempSong = songList[Math.floor(Math.random() * songList.length)];
+            var songState = songCache.get(tempSong.title) ? songCache.get(tempSong.title) : 0;
+            
+            if(i === 0) {
+                var count = 0;
+                do {
+                    // not in cache
+                    if(songState === 0) {
+                        if(randNum > 7) {
+                            songCache.set(tempSong.title, 1);
+                        } else {
+                            removeSong(tempSong, songList);
+                        }
+                        break;
+                    }
+                    // beg, no end
+                    else if(songState === 1) {
+                        tempSong = songList[Math.floor(Math.random() * songList.length)];
+                        songState = songCache.get(tempSong.title) ? songCache.get(tempSong.title) : 0;
+                        continue;
+                    } 
+                    // end, no beg
+                    else if (songState === 2) {
+                        removeSong(tempSong, songList);
+                        break;
+                    }
+                } while(count++ < 20);
+                newList.push(tempSong);
+            }
+            else if(i > 0 && i < listLength) {
+                // not in cache
+                if(songState === 0) {
+                    if(randNum === 7) {
+                        songCache.set(tempSong.title, 3);
+                        removeSong(tempSong, songList);
+                        // inverse
+                    } else if (randNum === 8) {
+                        songCache.set(tempSong.title, 1);
+                        // beg
+                    } else if (randNum > 8) {
+                        songCache.set(tempSong.title, 2);
+                        // end
+                    } else {
+                        removeSong(tempSong, songList);
+                    }
+                } else {
+                    removeSong(tempSong, songList);
+                }
+
+                newList.push(tempSong);
+            }
+            else if(i === listLength) {
+                var count = 0;
+                do {
+                    // not in cache
+                    if(songState === 0) {
+                        if(randNum > 7) {
+                            songCache.set(tempSong.title, 2);
+                        } else {
+                            removeSong(tempSong, songList);
+                        }
+                        break;
+                    }
+                    // beg, no end
+                    else if(songState === 1) {
+                        removeSong(tempSong, songList);
+                    } 
+                    // end, no beg
+                    else if (songState === 2) {
+                        tempSong = songList[Math.floor(Math.random() * songList.length)];
+                        songState = songCache.get(tempSong.title) ? songCache.get(tempSong.title) : 0;
+                        continue;
+                    }
+                } while(count++ < 20);
+                newList.push(tempSong);
+            }
+
+        }
+    }
+    return newList;
+}
+
 // returns an array of 1-4 songs
+/*
 function pickRandomSongs(songList) {
     var rand = Math.floor(Math.random() * (songList.length));
     var song = [];
@@ -77,12 +223,11 @@ function pickRandomSongs(songList) {
                 removeSong(tempSong, songList);
             }
         }
-        
         song.push(tempSong);
     } while (againNum > 8 && song.length < 4 && songList.length > 0);
 
     return song;
-}
+}*/
 // picks a song based on key of last song in same group, tries to resolve down a 5th first
 function getSong(songList, lastSong) {
     var newSong = null;
@@ -126,6 +271,7 @@ function removeSong(song, songList) {
 }
 
 function displaySetList(setList) {
+    console.log(setList);
     removeOldList();
 
     for(var i = 0; i < setList.length; i++) {
@@ -137,14 +283,17 @@ function displaySetList(setList) {
         if(setList[i].length > 1) {
             for(var j = 0; j < setList[i].length; j++) {
                 newContent += setList[i][j].title;
-                if (songCache.get(setList[i][j].title) != null) {
-                    if(songCache.get(setList[i][j].title) === "beg") {
-                        newContent += "(beg)";
-                        songCache.set(setList[i][j].title, "end")
-                    } else {
-                        newContent += "(end)";
-                    }
+                
+                if(songCache.get(setList[i][j].title) === 1) {
+                    newContent += "(beg)";
+                    songCache.set(setList[i][j].title, 2)
+                } else if (songCache.get(setList[i][j].title) === 2) {
+                    newContent += "(end)";
+                    songCache.set(setList[i][j].title, 1)
+                } else if (songCache.get(setList[i][j] = 3)) {
+                    newContent += "(inverse)";
                 }
+            
                 if(j !== setList[i].length-1) {
                     newContent += " -> "
 

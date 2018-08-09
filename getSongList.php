@@ -4,7 +4,7 @@
 
     $tableName = "songs";
 
-    $result = $conn->query("SELECT * FROM $tableName");
+    $result = $conn->query("SELECT * FROM $tableName WHERE username='whistlebot'");
 
     $records = [];
     if ($result->num_rows > 0)
