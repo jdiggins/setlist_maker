@@ -5,6 +5,7 @@ session_start();
 $title_err = $time_err = "";
 $title_hold = "";
 $time_hold = "0";
+$success = "";
 // Turn on error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
@@ -31,17 +32,30 @@ if(isset($_POST['add_user']))
         $title_hold = trim($_POST["title"]);
         $time_hold = trim($_POST["time"]);
     } else {
-    
-   $sql = "INSERT INTO $tableName (username, title, length1, songkey, song_quality, splittable) VALUES (?, ?, ?, ?, ?, ?)";
-    
-    $stmt = $link->prepare($sql);
-    $stmt->bind_param("ssissi", $_SESSION['username_setlist'], $_POST['title'], $_POST['time'],
-    $_POST['songkey'], $_POST['song_quality'], $_POST['splittable']);
-    if($stmt->execute()) {
-        echo 'Song entered successfully';
-    } else {
-        echo mysql_errno($link) . ": " . mysql_error($link) . "\n";
-    }
+        
+        $sql = "INSERT INTO $tableName (username, title, length1, songkey, song_quality, splittable) VALUES (?, ?, ?, ?, ?, ?)";
+        
+        if($stmt = mysqli_prepare($link, $sql)){
+
+            // Bind variables to the prepared statement as parameters
+
+            mysqli_stmt_bind_param($stmt, "ssissi", $_SESSION['username_setlist'], $_POST['title'], $_POST['time'],
+            $_POST['songkey'], $_POST['song_quality'], $_POST['splittable']);
+
+
+            // Attempt to execute the prepared statement
+
+            if(mysqli_stmt_execute($stmt)){
+                // success message
+                $success = "Success";
+
+            } else{
+                $success = "I'm sorry but I can't do this for you right now!";
+                // Error
+                echo mysql_errno($link) . ": " . mysql_error($link) . "\n";
+            }
+
+        }
     
     $stmt->close();
     $link->close();
@@ -64,16 +78,61 @@ if(isset($_POST['add_user']))
 
         body{ font: 14px sans-serif; text-align: center; }
         .wrapper{ margin: auto; width: 350px; padding: 20px; text-align: center; }
+
+        
+        .success-mess{
+            margin: auto;  padding: 20px; text-align: center;
+            opacity: 0;
+            animation-name: fadeInOut;
+            animation-duration: 7s;
+
+            background-color: #333; /* Black background color */
+            color: #fff; /* White text color */
+            border-radius: 2px; /* Rounded borders */
+            position: fixed; /* Sit on top of the screen */
+            bottom: 30px; /* 30px from the bottom */
+            width: 150 px;
+            transform: translateX(-50%);
+            left: 50%;
+        }
+        
+        @keyframes fadeInOut {
+        0% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+        }
+        }
+
     </style>
      <script type="text/javascript" src="setlist_creator.js"></script>
 
+     
+        
+   
 </head>
 
 <body>
+    <nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Setlist Maker</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li><a href="welcome.php">The Generator</a></li>
+            <li class="active"><a href="insert.php">Insert Songs</a></li>
+            <li><a href="settings.php">User Settings</a></li>
+            </ul>
+        <ul class="nav navbar-nav navbar-right">
+        <li><a href="logout.php">Logout</a></li>
+      </ul>
+    </div>
+    </nav>
 
     <div class="page-header">
 
-        <h1>Hi, <b><?php echo htmlspecialchars($_SESSION['username_setlist']); ?></b>. Let's enter some songs.</h1>
+        <h1><b><?php echo htmlspecialchars($_SESSION['username_setlist']); ?></b>, let's enter some songs.</h1>
 
     </div>
     <div class="wrapper">
@@ -123,13 +182,25 @@ if(isset($_POST['add_user']))
         <div class="form-group">
             <input type="submit" name="add_user" class="btn btn-danger"></td>
         </div>
-   
+
+        <script>
+        console.log("<?php echo ($success); ?>");
+        if("<?php echo htmlspecialchars($success); ?>" != "") {
+            console.log("inside function");
+        var newDiv = document.createElement("div");
+            newDiv.className="success-mess";
+            newDiv.appendChild(document.createTextNode("<?php echo htmlspecialchars($success); ?> "));
+        
+            document.body.appendChild(newDiv);
+        }
+</script>
+        
     
 
 </form>
 </div>
 
-<p><a href="welcome.php" class="btn btn-danger">Back</a></p><br>
+
 
 </body>
 

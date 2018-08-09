@@ -271,8 +271,10 @@ function removeSong(song, songList) {
 }
 
 function displaySetList(setList) {
-    console.log(setList);
     removeOldList();
+    var wrapDiv = document.createElement("div");
+    wrapDiv.id="song-list-wrap";
+    wrapDiv.className="songwrap";
 
     for(var i = 0; i < setList.length; i++) {
         var newDiv = document.createElement("div");
@@ -310,9 +312,11 @@ function displaySetList(setList) {
             }
         }
         newDiv.appendChild(document.createTextNode(newContent));
-       
-        document.body.appendChild(newDiv);
+       wrapDiv.appendChild(newDiv);
+        
     }
+    document.body.appendChild(wrapDiv);
+
 }
 
 // if old list exists in DOM this will remove it entirely
@@ -322,6 +326,12 @@ function removeOldList() {
     while(myNode !== null) {
         myNode.remove();
         myNode = document.getElementById("songlist");
+    }
+
+    var wrapNode = document.getElementById("song-list-wrap");
+    while(wrapNode !== null) {
+        wrapNode.remove();
+        wrapNode = document.getElementById("song-list-wrap");
     }
 
 }
