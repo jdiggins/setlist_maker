@@ -54,6 +54,7 @@ if(!isset($_SESSION['username_setlist']) || empty($_SESSION['username_setlist'])
             <li><a href="welcome.php">The Generator</a></li>
             <li><a href="insert.php">Insert Songs</a></li>
             <li class="active"><a href="settings.php">User Settings</a></li>
+            <li><a href="about.php">About</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
         <li><a href="logout.php">Logout</a></li>

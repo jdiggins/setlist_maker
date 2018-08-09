@@ -2,9 +2,11 @@
     songCache keeps track of songs split in 2 parts (beg and end)
 */
 var songCache = new Map();
+var username;
 
 // call getSongList in main to start all the work, this is the only function you need to call
-function getSongList(time) {
+function getSongList(time, user_name) {
+    username = user_name;
     checkUserLogin();
     var xhr = new XMLHttpRequest();
     songCache = new Map();
@@ -54,6 +56,20 @@ function parseJSON(json) {
         document.body.appendChild(newDiv);
     }
     return userInfo;
+}
+
+// pass to our phish
+
+function logData(indata){
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'logdata.php');
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    var params = 'data=' + indata;
+
+
+    xhr.send(params);
+    
 }
 
 // to start recursive call
@@ -275,6 +291,7 @@ function displaySetList(setList) {
     var wrapDiv = document.createElement("div");
     wrapDiv.id="song-list-wrap";
     wrapDiv.className="songwrap";
+    var listAsText = "";
 
     for(var i = 0; i < setList.length; i++) {
         var newDiv = document.createElement("div");
@@ -311,11 +328,13 @@ function displaySetList(setList) {
                 }
             }
         }
+        listAsText += newContent.toString() + " :: ";
         newDiv.appendChild(document.createTextNode(newContent));
        wrapDiv.appendChild(newDiv);
         
     }
     document.body.appendChild(wrapDiv);
+    logData(listAsText);
 
 }
 

@@ -4,7 +4,7 @@ session_start();
 
 $title_err = $time_err = "";
 $title_hold = "";
-$time_hold = "0";
+$time_hold = "4";
 $success = "";
 // Turn on error reporting
 error_reporting(E_ALL);
@@ -19,7 +19,7 @@ if(!isset($_SESSION['username_setlist']) || empty($_SESSION['username_setlist'])
 require_once 'config/config.php';
 $tableName = "songs";
 // parse post data & submit to database
-if(isset($_POST['add_user']))
+if(isset($_POST['add_song']))
 {
     
     if(empty(trim($_POST["title"])) || empty(trim($_POST["time"]))) {
@@ -33,15 +33,15 @@ if(isset($_POST['add_user']))
         $time_hold = trim($_POST["time"]);
     } else {
         
-        $sql = "INSERT INTO $tableName (username, title, length1, songkey, song_quality, splittable) VALUES (?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO $tableName (username, title, length1, tempo, songkey, song_quality, splittable) VALUES (?, ?, ?, ?, ?, ?, ?)";
         
         if($stmt = mysqli_prepare($link, $sql)){
 
             // Bind variables to the prepared statement as parameters
 
-            mysqli_stmt_bind_param($stmt, "ssissi", $_SESSION['username_setlist'], $_POST['title'], $_POST['time'],
-            $_POST['songkey'], $_POST['song_quality'], $_POST['splittable']);
-
+            mysqli_stmt_bind_param($stmt, "ssiissi", $_SESSION['username_setlist'], $_POST['title'], $_POST['time'],
+            $_POST['tempo'], $_POST['songkey'], $_POST['song_quality'], $_POST['splittable']);
+ 
 
             // Attempt to execute the prepared statement
 
@@ -123,6 +123,7 @@ if(isset($_POST['add_user']))
             <li><a href="welcome.php">The Generator</a></li>
             <li class="active"><a href="insert.php">Insert Songs</a></li>
             <li><a href="settings.php">User Settings</a></li>
+            <li><a href="about.php">About</a></li>
             </ul>
         <ul class="nav navbar-nav navbar-right">
         <li><a href="logout.php">Logout</a></li>
@@ -146,6 +147,10 @@ if(isset($_POST['add_user']))
             <label>Approx Song Length:</label>
             <input type="number" min=0 name="time" value ="<?php echo $time_hold ?>" class="form-control">
             <span class="help-block"><?php echo $time_err; ?></span>
+        </div> 
+        <div class="form-group">
+            <label>Tempo (bpm):</label>
+            <input type="number" min=1 name="tempo" value ="120" class="form-control">
         </div> 
         <div class="form-group">
             <label>Song Key:</label>
@@ -180,7 +185,7 @@ if(isset($_POST['add_user']))
             </select>
         </div>
         <div class="form-group">
-            <input type="submit" name="add_user" class="btn btn-danger"></td>
+            <input type="submit" name="add_song" class="btn btn-danger" value="Insert Song"></td>
         </div>
 
         <script>
