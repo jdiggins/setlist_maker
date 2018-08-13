@@ -74,7 +74,22 @@ function logData(indata){
 
 // to start recursive call
 function makeSetlist(songList, time) {
-    buildSetList([], songList, time);
+    if(songList.length < 6) {
+        buildSmallSetList([], songList, time);
+    } else {
+        buildSetList([], songList, time);
+    }
+}
+function buildSmallSetList(setList, songList, time) {
+    if(time < 0 || songList.length == 0) {
+        displaySetList(setList);
+    } else {
+        var song = pickRandomSongs_smallSetlist(songList);
+        //removeSong(song, songList);
+        setList.push(song);
+        
+        buildSmallSetList(setList, songList, time - getTotalTime(song));;
+    }
 }
 
 // recursely build the set list
@@ -98,6 +113,122 @@ function getTotalTime(songs) {
         total += (parseInt(songs[i].length1));
     }
     return total;
+}
+
+function pickRandomSongs_smallSetlist(songList) {
+    var newList = [];
+    var maxListLength = songList.length > 3 ? 3 : songList.length;
+    var listLength = Math.floor(Math.random() * maxListLength);
+
+    /* If only one song, just add a song */
+    if(listLength === 0) {
+        var count = 0;
+        do {
+            var tempSong = songList[Math.floor(Math.random() * songList.length)];
+            var songState = songCache.get(tempSong.title) ? songCache.get(tempSong.title) : 0;
+            if(songState === 0 || count > 15) {
+                newList.push(tempSong);
+                removeSong(tempSong, songList);
+                break;
+            }
+            count++;
+
+        } while (1);
+
+
+    } else {
+        /* More than one song, allow for song splitting & inversions */
+        for (var i = 0; i <= listLength; i++) {
+            var randNum = Math.floor(Math.random() * 11);
+            var tempSong = songList[Math.floor(Math.random() * songList.length)];
+            var songState = songCache.get(tempSong.title) ? songCache.get(tempSong.title) : 0;
+            
+            if(i === 0) {
+                var count = 0;
+                do {
+                    // not in cache
+                    if(songState === 0) {
+                        if(randNum > 7) {
+                            songCache.set(tempSong.title, 1);
+                            removeSong(tempSong, songList);
+
+                        } else {
+                            removeSong(tempSong, songList);
+                        }
+                        break;
+                    }
+                    // beg, no end
+                    else if(songState === 1) {
+                        tempSong = songList[Math.floor(Math.random() * songList.length)];
+                        songState = songCache.get(tempSong.title) ? songCache.get(tempSong.title) : 0;
+
+                        continue;
+                    } 
+                    // end, no beg
+                    else if (songState === 2) {
+                        removeSong(tempSong, songList);
+                        break;
+                    }
+                } while(count++ < 20);
+                newList.push(tempSong);
+            }
+            else if(i > 0 && i < listLength) {
+                // not in cache
+                if(songState === 0) {
+                    if(randNum === 7) {
+                        songCache.set(tempSong.title, 3);
+                        removeSong(tempSong, songList);
+                        // inverse
+                    } else if (randNum === 8) {
+                        songCache.set(tempSong.title, 1);
+                        removeSong(tempSong, songList);
+
+                        // beg
+                    } else if (randNum > 8) {
+                        songCache.set(tempSong.title, 2);
+                        removeSong(tempSong, songList);
+
+                        // end
+                    } else {
+                        removeSong(tempSong, songList);
+                    }
+                } else {
+                    removeSong(tempSong, songList);
+                }
+
+                newList.push(tempSong);
+            }
+            else if(i === listLength) {
+                var count = 0;
+                do {
+                    // not in cache
+                    if(songState === 0) {
+                        if(randNum > 7) {
+                            songCache.set(tempSong.title, 2);
+                            removeSong(tempSong, songList);
+
+                        } else {
+                            removeSong(tempSong, songList);
+                        }
+                        break;
+                    }
+                    // beg, no end
+                    else if(songState === 1) {
+                        removeSong(tempSong, songList);
+                    } 
+                    // end, no beg
+                    else if (songState === 2) {
+                        tempSong = songList[Math.floor(Math.random() * songList.length)];
+                        songState = songCache.get(tempSong.title) ? songCache.get(tempSong.title) : 0;
+                        continue;
+                    }
+                } while(count++ < 20);
+                newList.push(tempSong);
+            }
+
+        }
+    }
+    return newList;
 }
 
 
@@ -160,15 +291,13 @@ function pickRandomSongs(songList) {
                 // not in cache
                 if(songState === 0) {
                     if(randNum === 7) {
+                        songCache.set(tempSong.title, 1);
+                        
+                    } else if (randNum === 8) {
+                        songCache.set(tempSong.title, 2);
+                    } else if (randNum > 8) {
                         songCache.set(tempSong.title, 3);
                         removeSong(tempSong, songList);
-                        // inverse
-                    } else if (randNum === 8) {
-                        songCache.set(tempSong.title, 1);
-                        // beg
-                    } else if (randNum > 8) {
-                        songCache.set(tempSong.title, 2);
-                        // end
                     } else {
                         removeSong(tempSong, songList);
                     }
@@ -309,7 +438,7 @@ function displaySetList(setList) {
                 } else if (songCache.get(setList[i][j].title) === 2) {
                     newContent += "(end)";
                     songCache.set(setList[i][j].title, 1)
-                } else if (songCache.get(setList[i][j] = 3)) {
+                } else if (songCache.get(setList[i][j].title) === 3) {
                     newContent += "(inverse)";
                 }
             

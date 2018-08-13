@@ -16,7 +16,6 @@ $divContent = $xpath->evaluate('//div[id="song-list-wrap"]');
 $divContent = $_POST['data'];
 
 $content = $divContent;
-$date = new DateTime ($date);
 $now = date ('Y-m-d H:i:s', time());
 $username = '(User: ' . $_SESSION['username_setlist'] . ' ) (Time: ' . $now . ') ';
 

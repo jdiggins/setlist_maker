@@ -145,7 +145,7 @@ if(isset($_POST['add_song']))
         </div>  
         <div class="form-group <?php echo (!empty($time_err)) ? 'has-error' : ''; ?>">
             <label>Approx Song Length:</label>
-            <input type="number" min=0 name="time" value ="<?php echo $time_hold ?>" class="form-control">
+            <input type="number" min=0 max=20 name="time" value ="<?php echo $time_hold ?>" class="form-control">
             <span class="help-block"><?php echo $time_err; ?></span>
         </div> 
         <div class="form-group">
